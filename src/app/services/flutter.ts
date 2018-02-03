@@ -1,6 +1,6 @@
 'use strict';
 
-import {Injectable, NgZone} from '@angular/core';
+import {EventEmitter, Injectable, NgZone} from '@angular/core';
 import * as moment from 'moment';
 
 export interface FlutterResponse {
@@ -23,6 +23,8 @@ export class FlutterService {
   private pollTimeoutHandle: number;
   private zone: NgZone;
 
+  public profitUpdate: EventEmitter<string> = new EventEmitter<string>();
+
   constructor(zone: NgZone) {
     this.eventLoop();
     this.zone = zone;
@@ -32,7 +34,7 @@ export class FlutterService {
     if (!this._profit) {
       return '--.--';
     }
-    return this._profit;
+    return this._profit + (this.stale ? '*' : '');
   }
 
   public get stale(): boolean {
@@ -44,23 +46,40 @@ export class FlutterService {
       .then(() => this.waitForPollDelay())
       .then(() => this.eventLoop());
   }
-  private poll(): Promise<Response> {
 
-    let date: string = moment().format('YYYY-MM-DD');
-    let url: string = FlutterService.BASE_URL + `/stats?df=${date}&dt=${date}&groupings=["MarketType"]&dsFilters={}&specialFilters={}`;
-
-    return fetch(url)
-      .then(raw => raw.json())
+  private responseHandler(response: Response): Promise<string> {
+    return response.json()
       .then((json: FlutterResponse) => {
         if (!json.MarketType || !json.MarketType.length || !json.MarketType[0].Net) {
           throw 'no profit found in response';
         }
 
-        this._profit = json.MarketType[0].Net.Profit.toFixed(2);
-        console.log('Updated profit to ' + this._profit);
         this._stale = false;
 
-        return json;
+        return json.MarketType[0].Net.Profit.toFixed(2);
+      })
+  }
+
+  private poll(): Promise<string> {
+
+    let date: string = moment().format('YYYY-MM-DD');
+    let url: string = FlutterService.BASE_URL + `/stats?df=${date}&dt=${date}&groupings=["MarketType"]&dsFilters={}&specialFilters={}`;
+
+    return fetch(url)
+      .then(response => this.responseHandler(response))
+      .then(newProfit => {
+
+        if (this._profit === newProfit) {
+          console.log(`Profit static @ ${this._profit}`);
+          return this._profit;
+        }
+
+        console.log(`Updated profit from ${this._profit} to ${newProfit}`);
+
+        this._profit = newProfit;
+
+        this.profitUpdate.emit(this.profit);
+        return this._profit;
       })
       .catch(err => {
         console.error(err);
