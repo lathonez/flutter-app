@@ -8,7 +8,9 @@ import { HomePage } from '../pages/home/home';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { FlutterService } from "./services/flutter";
+import { LocalNotifications } from '@ionic-native/local-notifications';
+import { FlutterService } from './services/flutter';
+import { NotificationService } from './services/notification';
 
 @NgModule({
   declarations: [
@@ -27,10 +29,12 @@ import { FlutterService } from "./services/flutter";
     HomePage,
   ],
   providers: [
+    LocalNotifications,
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    FlutterService
+    FlutterService,
+    NotificationService,
   ]
 })
 export class AppModule {}

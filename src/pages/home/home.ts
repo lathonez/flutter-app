@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FlutterService } from "../../app/services/flutter";
+import { FlutterService } from '../../app/services/flutter';
 
 @Component({
   selector: 'page-home',
