@@ -8,7 +8,6 @@ import { HomePage } from '../pages/home/home';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { LocalNotifications } from '@ionic-native/local-notifications';
 import { FlutterService } from './services/flutter';
 import { NotificationService } from './services/notification';
 
@@ -29,7 +28,6 @@ import { NotificationService } from './services/notification';
     HomePage,
   ],
   providers: [
-    LocalNotifications,
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},

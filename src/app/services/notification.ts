@@ -2,57 +2,121 @@
 
 import { Injectable } from '@angular/core';
 import { FlutterService } from './flutter';
-import { LocalNotifications } from '@ionic-native/local-notifications';
+
+declare let cordova: any;
 
 @Injectable()
 export class NotificationService {
 
+  public cordovaStub: any = { // testing
+    schedule: (opts => console.log(opts)),
+    clear: (opts => console.log(opts)),
+    requestPermission: (opts => console.log(opts))
+  };
+
   private static NOTIFICATION_ID: 1234;
+  private static DOWN_ICON: string = 'file://assets/imgs/down.png' ;
+  private static UNKNOWN_ICON: string = 'file://assets/imgs/unknown.png';
+  private static UP_ICON: string = 'file://assets/imgs/up.png';
 
+  private _enabled: boolean = true;
   private flutter: FlutterService;
-  private notification: LocalNotifications;
+  private plugin: any;
 
-  constructor(flutter: FlutterService, notification: LocalNotifications) {
+  constructor(flutter: FlutterService) {
     this.flutter = flutter;
-    this.notification = notification;
+  }
+
+  public get enabled(): boolean {
+    return this.hasCordova && this._enabled;
+  }
+
+  public set enabled(enabled: boolean) {
+    if (this.enabled === enabled) {
+      return;
+    }
+
+    this._enabled = enabled;
+
+    // don't go further if there's no cordova
+    if (!this.plugin) {
+      return;
+    }
+
+    if (this.enabled) {
+      this.notify(this.flutter.profit);
+    } else {
+      this.clear();
+    }
+  }
+
+  public get hasCordova() {
+    return !!this.plugin;
   }
 
   public init(): Promise<void> {
-    return this.getPermission()
-      .then(() => this.notify(this.flutter.profit))
-      .then(() => this.flutter.profitUpdate.subscribe(profit => this.notify(profit)))
+
+    this.plugin = NotificationService.getPlugin();
+
+    if (!this.enabled) {
+      console.warn('notifications disabled');
+      return Promise.resolve(null);
+    }
+
+    return this.requestPermission()
+      .then(() => {
+        this.notify(this.flutter.profit);
+        this.flutter.profitUpdate.subscribe(profit => this.enabled && this.notify(profit));
+      })
       .catch(error => {
-        if (error === 'cordova_not_available') {
-          console.warn('Notifications not available in browser');
-          return;
-        }
-        console.error('an error occurred registering notifications');
+        console.error('an error occurred registering plugins');
         console.error(error);
       });
   }
 
-  private getPermission(): Promise<boolean> {
-    return this.notification.hasPermission()
-      .then(permission => {
-        if (permission) {
-          return Promise.resolve(true);
-        }
-        return this.notification.registerPermission();
-      })
+  private clear(): void {
+    this.plugin.clear(NotificationService.NOTIFICATION_ID);
   }
 
-  private notify(profit: string): Promise<void> {
+  private getIcon(): string {
 
-    let fn: Function = null;
-    return this.notification.isPresent(NotificationService.NOTIFICATION_ID)
-      .then(present => {
-        fn = present ? this.notification.update : this.notification.schedule;
-        return fn({
-          id: NotificationService.NOTIFICATION_ID,
-          title: 'FlutterBot Profit',
-          text: profit,
-          sticky: true,
-        });
-      })
+    if (this.flutter.trend === null) {
+      return NotificationService.UNKNOWN_ICON;
+    }
+
+    return this.flutter.trend ? NotificationService.UP_ICON : NotificationService.DOWN_ICON;
+  }
+
+  private static getPlugin(): any {
+    if (typeof cordova === 'undefined') {
+      // return this.cordovaStub; // for testing
+      return null;
+    }
+
+    return cordova.plugins.notification.local;
+  }
+
+  private notify(profit: string): void {
+
+    this.plugin.schedule({
+      id: NotificationService.NOTIFICATION_ID,
+      title: `FlutterBot Profit ${profit}`,
+      sticky: true,
+      smallIcon: 'res://logo.png',
+      icon: this.getIcon()
+    });
+  }
+
+  private requestPermission(): Promise<boolean> {
+
+    return new Promise((resolve, reject) => {
+      this.plugin.requestPermission((result) => {
+        if (result) {
+           resolve(result) ;
+        } else {
+          reject('permission not granted');
+        }
+      });
+    });
   }
 }

@@ -17,8 +17,9 @@ export class FlutterService {
   private static POLL_DELAY: number = 10000;
   private static BASE_URL: string = 'http://3.flutterbot.co.uk/api';
 
-  private _profit: string;
+  private _profit: number;
   private _stale: boolean = false;
+  private _trend: boolean = null;
 
   private pollTimeoutHandle: number;
   private zone: NgZone;
@@ -32,13 +33,17 @@ export class FlutterService {
 
   public get profit(): string {
     if (!this._profit) {
-      return '--.--';
+      return '£--.--';
     }
-    return this._profit + (this.stale ? '*' : '');
+    return `£${this._profit.toFixed(2) + (this.stale ? '*' : '')}`;
   }
 
   public get stale(): boolean {
     return this._stale;
+  }
+
+  public get trend(): boolean {
+    return this._trend;
   }
 
   private eventLoop(): void {
@@ -47,17 +52,35 @@ export class FlutterService {
       .then(() => this.eventLoop());
   }
 
-  private responseHandler(response: Response): Promise<string> {
+  private static getTrend(currentProfit: number, newProfit: number): boolean {
+
+    switch(true) {
+      // LOSS
+      case typeof currentProfit === 'undefined' && newProfit < 0:
+        return false;
+      case currentProfit > newProfit:
+        return false;
+      // PROFIT
+      case typeof currentProfit === 'undefined' && newProfit > 0:
+        return true;
+      case currentProfit < newProfit:
+        return true;
+    }
+  }
+
+  private responseHandler(response: Response): Promise<number> {
     return response.json()
       .then((json: FlutterResponse) => {
-        if (!json.MarketType || !json.MarketType.length || !json.MarketType[0].Net) {
-          throw 'no profit found in response';
-        }
+
+        // if (!json.MarketType || !json.MarketType.length || !json.MarketType[0].Net) {
+        //   throw 'no profit found in response';
+        // }
 
         this._stale = false;
 
-        return json.MarketType[0].Net.Profit.toFixed(2);
-      })
+        // return json.MarketType[0].Net.Profit;
+        return Math.random() * 100;
+      });
   }
 
   private poll(): Promise<string> {
@@ -73,6 +96,8 @@ export class FlutterService {
           console.log(`Profit static @ ${this._profit}`);
           return this._profit;
         }
+
+        this._trend = FlutterService.getTrend(this._profit, newProfit);
 
         console.log(`Updated profit from ${this._profit} to ${newProfit}`);
 

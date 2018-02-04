@@ -1,14 +1,18 @@
 <ion-header>
   <ion-navbar>
-    <ion-row>
-      <ion-col><button ion-button menuToggle><ion-icon name="menu"></ion-icon></button></ion-col>
-      <ion-col><ion-title>Home</ion-title></ion-col>
-    </ion-row>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Profit</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  <h2>Welcome to Flutter App</h2>
+  <h3>Profit: {{flutter.profit}}</h3>
 
-  <h3>Profit: £{{flutter.profit}}</h3>
+  <ion-item>
+    <ion-label>Show Notification</ion-label>
+    <ion-toggle [disabled]="!notification.hasCordova" [(ngModel)]="notification.enabled"></ion-toggle>
+  </ion-item>
+
 </ion-content>
