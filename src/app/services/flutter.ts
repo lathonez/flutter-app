@@ -72,14 +72,13 @@ export class FlutterService {
     return response.json()
       .then((json: FlutterResponse) => {
 
-        // if (!json.MarketType || !json.MarketType.length || !json.MarketType[0].Net) {
-        //   throw 'no profit found in response';
-        // }
+        if (!json.MarketType || !json.MarketType.length || !json.MarketType[0].Net) {
+          throw 'no profit found in response';
+        }
 
         this._stale = false;
 
-        // return json.MarketType[0].Net.Profit;
-        return Math.random() * 100;
+        return json.MarketType[0].Net.Profit;
       });
   }
 
