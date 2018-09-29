@@ -15,7 +15,7 @@ export interface FlutterResponse {
 export class FlutterService {
 
   private static POLL_DELAY: number = 10000;
-  private static BASE_URL: string = 'http://3.flutterbot.co.uk/api';
+  private static BASE_URL: string = 'https://flutterbot.co.uk/api';
 
   private _profit: number;
   private _stale: boolean = false;
