@@ -1,0 +1,36 @@
+#
+# Flutter App CircleCI 2.0 configuration file
+#
+version: 2.0
+jobs:
+  build:
+    docker:
+      - image: agileek/ionic-framework
+
+    working_directory: /root/flutter-app
+
+    steps:
+      - checkout
+
+      - run:
+          name: debug environment
+          command: ionic info
+
+      - restore_cache:
+          keys:
+          - npm-cache-{{ checksum "package-lock.json" }}
+
+      - run: npm i
+
+      - save_cache:
+          key: npm-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+
+      - run:
+          name: Build
+          command: ionic cordova build android
+
+      - store_artifacts:
+          path: /root/flutter-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          destination: flutter-app.apk
