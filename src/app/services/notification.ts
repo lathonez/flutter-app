@@ -2,6 +2,8 @@
 
 import { Injectable } from '@angular/core';
 import { FlutterService } from './flutter';
+import { SnowballService } from './snowball';
+import { InPlayService } from './in-play';
 
 declare let cordova: any;
 
@@ -21,10 +23,15 @@ export class NotificationService {
 
   private _enabled: boolean = true;
   private flutter: FlutterService;
+  private inPlay: InPlayService;
+  private snowball: SnowballService;
+
   private plugin: any;
 
-  constructor(flutter: FlutterService) {
+  constructor(flutter: FlutterService, inPlay: InPlayService, snowball: SnowballService) {
     this.flutter = flutter;
+    this.inPlay = inPlay;
+    this.snowball = snowball;
   }
 
   public get enabled(): boolean {
@@ -44,7 +51,7 @@ export class NotificationService {
     }
 
     if (this.enabled) {
-      this.notify(this.flutter.profit);
+      this.notify();
     } else {
       this.clear();
     }
@@ -65,13 +72,19 @@ export class NotificationService {
 
     return this.requestPermission()
       .then(() => {
-        this.notify(this.flutter.profit);
-        this.flutter.profitUpdate.subscribe(profit => this.enabled && this.notify(profit));
+        this.notify();
+        this.flutter.profitUpdate.subscribe(() => this.notify());
+        this.inPlay.profitUpdate.subscribe(() => this.notify());
+        this.snowball.profitUpdate.subscribe(() => this.notify());
       })
       .catch(error => {
         console.error('an error occurred registering plugins');
         console.error(error);
       });
+  }
+
+  private get profit(): string {
+    return `Overall: ${this.flutter.profit}\nSnowball: ${this.snowball.profit}\nInPlay: ${this.inPlay.profit}`;
   }
 
   private clear(): void {
@@ -96,14 +109,19 @@ export class NotificationService {
     return cordova.plugins.notification.local;
   }
 
-  private notify(profit: string): void {
+  private notify(): void {
+
+    if (!this.enabled) {
+      return;
+    }
 
     this.plugin.schedule({
       id: NotificationService.NOTIFICATION_ID,
-      title: `FlutterBot Profit ${profit}`,
+      title: `FlutterBot Profit`,
+      text: this.profit,
       sticky: true,
       smallIcon: 'res://logo.png',
-      icon: this.getIcon()
+      icon: this.getIcon(),
     });
   }
 

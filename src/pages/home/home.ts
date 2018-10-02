@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FlutterService } from '../../app/services/flutter';
-import {NotificationService} from "../../app/services/notification";
+import { NotificationService } from '../../app/services/notification';
+import { SnowballService } from '../../app/services/snowball';
+import { InPlayService } from "../../app/services/in-play";
 
 @Component({
   selector: 'page-home',
@@ -9,10 +11,20 @@ import {NotificationService} from "../../app/services/notification";
 export class HomePage {
 
   public flutter: FlutterService;
-  private notification: NotificationService;
+  public inPlay: InPlayService;
+  public notification: NotificationService;
+  public snowball: SnowballService;
 
-  constructor(flutter: FlutterService, notification: NotificationService) {
+  constructor(flutter: FlutterService, inPlay: InPlayService, snowball: SnowballService, notification: NotificationService) {
     this.flutter = flutter;
+    this.inPlay = inPlay;
     this.notification = notification;
+    this.snowball = snowball;
+  }
+
+  public ngOnInit() {
+    this.flutter.eventLoop();
+    this.inPlay.eventLoop();
+    this.snowball.eventLoop();
   }
 }

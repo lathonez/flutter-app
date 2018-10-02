@@ -15,8 +15,8 @@ export interface FlutterResponse {
 export class FlutterService {
 
   private static POLL_DELAY: number = 10000;
-  private static BASE_URL: string = 'http://3.flutterbot.co.uk/api';
 
+  protected _url: string = 'https://flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["MarketType"]&dsFilters={}&specialFilters={}';
   private _profit: number;
   private _stale: boolean = false;
   private _trend: boolean = null;
@@ -27,7 +27,6 @@ export class FlutterService {
   public profitUpdate: EventEmitter<string> = new EventEmitter<string>();
 
   constructor(zone: NgZone) {
-    this.eventLoop();
     this.zone = zone;
   }
 
@@ -35,7 +34,7 @@ export class FlutterService {
     if (!this._profit) {
       return '£--.--';
     }
-    return `£${this._profit.toFixed(2) + (this.stale ? '*' : '')}`;
+    return `£${this._profit.toFixed(2) + (this.stale ? '!' : '')}`;
   }
 
   public get stale(): boolean {
@@ -46,7 +45,7 @@ export class FlutterService {
     return this._trend;
   }
 
-  private eventLoop(): void {
+  public eventLoop(): void {
     this.poll()
       .then(() => this.waitForPollDelay())
       .then(() => this.eventLoop());
@@ -84,10 +83,9 @@ export class FlutterService {
 
   private poll(): Promise<string> {
 
-    let date: string = moment().format('YYYY-MM-DD');
-    let url: string = FlutterService.BASE_URL + `/stats?df=${date}&dt=${date}&groupings=["MarketType"]&dsFilters={}&specialFilters={}`;
+    const date: string = moment().format('YYYY-MM-DD');
 
-    return fetch(url)
+    return fetch(this._url.replace(/DATE/g, date))
       .then(response => this.responseHandler(response))
       .then(newProfit => {
 

@@ -10,6 +10,8 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { FlutterService } from './services/flutter';
 import { NotificationService } from './services/notification';
+import { SnowballService } from './services/snowball';
+import { InPlayService } from './services/in-play';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import { NotificationService } from './services/notification';
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     FlutterService,
     NotificationService,
+    SnowballService,
+    InPlayService
   ]
 })
 export class AppModule {}

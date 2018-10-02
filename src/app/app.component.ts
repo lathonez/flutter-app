@@ -2,7 +2,6 @@ import { Component, ViewChild } from '@angular/core';
 import { MenuController, Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { FlutterService } from './services/flutter';
 import { HomePage } from '../pages/home/home';
 import { AboutPage } from '../pages/about/about';
 import { NotificationService } from './services/notification';
@@ -21,13 +20,11 @@ export class FlutterApp {
   ];
 
   private menu: MenuController;
-  private flutter: FlutterService;
   private notification: NotificationService;
 
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, menu: MenuController, flutter: FlutterService, notification: NotificationService) {
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, menu: MenuController, notification: NotificationService) {
 
     this.menu = menu;
-    this.flutter = flutter;
     this.notification = notification;
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
