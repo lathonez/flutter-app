@@ -4,7 +4,7 @@
 
 Mobile app for [FlutterBot](http://flutterbot.co.uk/)
 
-## Pre Requisites
+## Prerequisites
 
 * [Node LTS](https://nodejs.org/en/)
 * Ionic and Cordova: `npm install -g ionic@4.1.2 cordova@8.0.0`
@@ -19,6 +19,6 @@ Mobile app for [FlutterBot](http://flutterbot.co.uk/)
 
 ## Build APK
 
-Pushing a branch on this repo will result in a CircleCI build.
+Committing to this repo will result in a CircleCI build.
 
 If the build is successful a `flutter-app.apk` will be available in the "artifacts" section.
