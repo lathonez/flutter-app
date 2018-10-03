@@ -2,8 +2,6 @@
 
 import { Injectable } from '@angular/core';
 import { FlutterService } from './flutter';
-import { SnowballService } from './snowball';
-import { InPlayService } from './in-play';
 
 declare let cordova: any;
 
@@ -23,15 +21,11 @@ export class NotificationService {
 
   private _enabled: boolean = true;
   private flutter: FlutterService;
-  private inPlay: InPlayService;
-  private snowball: SnowballService;
 
   private plugin: any;
 
-  constructor(flutter: FlutterService, inPlay: InPlayService, snowball: SnowballService) {
+  constructor(flutter: FlutterService) {
     this.flutter = flutter;
-    this.inPlay = inPlay;
-    this.snowball = snowball;
   }
 
   public get enabled(): boolean {
@@ -51,7 +45,7 @@ export class NotificationService {
     }
 
     if (this.enabled) {
-      this.notify();
+      this.notify({type: 'ENABLED', profit: null, trend: null});
     } else {
       this.clear();
     }
@@ -72,10 +66,8 @@ export class NotificationService {
 
     return this.requestPermission()
       .then(() => {
-        this.notify();
-        this.flutter.profitUpdate.subscribe(() => this.notify());
-        this.inPlay.profitUpdate.subscribe(() => this.notify());
-        this.snowball.profitUpdate.subscribe(() => this.notify());
+        this.notify({type: 'INIT', profit: null, trend: null});
+        this.flutter.profitUpdate.subscribe(update => this.notify(update));
       })
       .catch(error => {
         console.error('an error occurred registering plugins');
@@ -84,20 +76,21 @@ export class NotificationService {
   }
 
   private get profit(): string {
-    return `Overall: ${this.flutter.profit}\nSnowball: ${this.snowball.profit}\nInPlay: ${this.inPlay.profit}`;
+    const { overall, inPlay, snowball } = this.flutter.profit;
+    return `Overall: ${overall}\nSnowball: ${snowball}\nInPlay: ${inPlay}`;
   }
 
   private clear(): void {
     this.plugin.clear(NotificationService.NOTIFICATION_ID);
   }
 
-  private getIcon(): string {
+  private getIcon(trend: boolean): string {
 
-    if (this.flutter.trend === null) {
+    if (trend === null) {
       return NotificationService.UNKNOWN_ICON;
     }
 
-    return this.flutter.trend ? NotificationService.UP_ICON : NotificationService.DOWN_ICON;
+    return trend ? NotificationService.UP_ICON : NotificationService.DOWN_ICON;
   }
 
   private static getPlugin(): any {
@@ -109,11 +102,13 @@ export class NotificationService {
     return cordova.plugins.notification.local;
   }
 
-  private notify(): void {
+  private notify({ type, profit, trend }): void {
 
     if (!this.enabled) {
       return;
     }
+
+    console.log(`Scheduling notification ${type} ${profit} ${trend}`);
 
     this.plugin.schedule({
       id: NotificationService.NOTIFICATION_ID,
@@ -121,7 +116,7 @@ export class NotificationService {
       text: this.profit,
       sticky: true,
       smallIcon: 'res://logo.png',
-      icon: this.getIcon(),
+      icon: this.getIcon(trend),
     });
   }
 
