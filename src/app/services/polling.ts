@@ -4,7 +4,7 @@ import {EventEmitter, NgZone} from '@angular/core';
 import * as moment from 'moment';
 
 export interface FlutterResponse {
-  MarketType: Array<{
+  All: Array<{
     Net: {
       Profit: number
     }
@@ -72,13 +72,13 @@ export class PollingService {
     return response.json()
       .then((json: FlutterResponse) => {
 
-        if (!json.MarketType || !json.MarketType.length || !json.MarketType[0].Net) {
+        if (!json.All || !json.All.length || !json.All[0].Net) {
           throw 'no profit found in response';
         }
 
         this._stale = false;
 
-        return json.MarketType[0].Net.Profit;
+        return json.All[0].Net.Profit;
       });
   }
 

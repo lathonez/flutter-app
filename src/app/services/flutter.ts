@@ -6,9 +6,9 @@ import { PollingService } from './polling';
 @Injectable()
 export class FlutterService {
 
-  private static IN_PLAY_URL: string = 'https://flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["MarketType"]&dsFilters={InPlay: true}&specialFilters={}';
-  private static OVERALL_URL: string = 'https://flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["MarketType"]&dsFilters={}&specialFilters={}';
-  private static SNOWBALL_URL: string = 'https://snowball.flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["MarketType"]&dsFilters={}&specialFilters={}';
+  private static IN_PLAY_URL: string = 'https://flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["All"]&dsFilters={InPlay: true}&specialFilters={}';
+  private static OVERALL_URL: string = 'https://flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["All"]&dsFilters={}&specialFilters={}';
+  private static SNOWBALL_URL: string = 'https://snowball.flutterbot.co.uk/api/stats?df=DATE&dt=DATE&groupings=["All"]&dsFilters={}&specialFilters={}';
 
   private inPlay: PollingService;
   private overall: PollingService;
