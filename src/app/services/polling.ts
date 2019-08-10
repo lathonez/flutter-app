@@ -52,7 +52,7 @@ export class PollingService {
     if (!amount) {
       return '£--.--';
     }
-    return `{amount < 0 ? '-' : ''}£${amount.toFixed(Math.abs(2))}`;
+    return `${amount < 0 ? '-' : ''}£${amount.toFixed(Math.abs(2))}`;
   }
 
   private eventLoop(): void {
