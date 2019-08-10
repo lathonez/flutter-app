@@ -25,7 +25,7 @@ jobs:
 
       - run:
           name: agree to android license
-          command: yes | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses
+          command: yes | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses || 0
 
       - run:
           name: debug environment
