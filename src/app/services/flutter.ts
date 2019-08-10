@@ -33,8 +33,11 @@ export class FlutterService {
   public get profit() {
     return {
       inPlay: this.inPlay.profit,
+      inPlayCashout: this.inPlay.cashout,
       overall: this.overall.profit,
+      overallCashout: this.overall.cashout,
       snowball: this.snowball.profit,
+      snowballCashout: this.snowball.cashout,
     };
   }
 }
