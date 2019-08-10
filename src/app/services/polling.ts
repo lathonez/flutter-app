@@ -17,6 +17,7 @@ export class PollingService {
 
   private _url: string;
   private _profit: number;
+  private _cashout: number;
   private _stale: boolean = false;
   private _trend: boolean = null;
 
@@ -32,10 +33,11 @@ export class PollingService {
   }
 
   public get profit(): string {
-    if (!this._profit) {
-      return '£--.--';
-    }
-    return `£${this._profit.toFixed(2) + (this.stale ? '!' : '')}`;
+    return this.formatCcy(this._profit) + (this.stale ? '!' : '');
+  }
+
+  public get cashout(): string {
+    return this.formatCcy(this._cashout) + (this.stale ? '!' : '');
   }
 
   public get stale(): boolean {
@@ -44,6 +46,13 @@ export class PollingService {
 
   public get trend(): boolean {
     return this._trend;
+  }
+
+  private formatCcy(amount: number): string {
+    if (!amount) {
+      return '£--.--';
+    }
+    return `{amount < 0 ? '-' : ''}£${amount.toFixed(Math.abs(2))}`;
   }
 
   private eventLoop(): void {
@@ -68,7 +77,7 @@ export class PollingService {
     }
   }
 
-  private responseHandler(response: Response): Promise<number> {
+  private responseHandler(response: Response): Promise<{}> {
     return response.json()
       .then((json: FlutterResponse) => {
 
@@ -78,7 +87,7 @@ export class PollingService {
 
         this._stale = false;
 
-        return json.All[0].Net.Profit;
+        return json.All[0].Net;
       });
   }
 
@@ -88,20 +97,21 @@ export class PollingService {
 
     return fetch(this._url.replace(/DATE/g, date))
       .then(response => this.responseHandler(response))
-      .then(newProfit => {
+      .then(newSummary => {
 
-        if (this._profit === newProfit) {
+        if (this._profit === newSummary['Profit']) {
           console.log(`Profit static @ ${this._profit}`);
           return this._profit;
         }
 
-        this._trend = PollingService.getTrend(this._profit, newProfit);
+        this._trend = PollingService.getTrend(this._profit, newSummary['Profit']);
 
-        console.log(`Updated profit from ${this._profit} to ${newProfit}`);
+        console.log(`Updated profit from ${this._profit} to ${newSummary['Profit']}`);
 
-        this._profit = newProfit;
+        this._profit = newSummary['Profit'];
+        this._cashout = newSummary['CashoutValueExclLargeSpread'];
 
-        this.profitUpdate.emit({profit: this.profit, trend: this.trend});
+        this.profitUpdate.emit({profit: this.profit, cashout: this.cashout, trend: this.trend});
         return this._profit;
       })
       .catch(err => {
