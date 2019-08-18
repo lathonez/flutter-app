@@ -34,6 +34,7 @@ export class FlutterService {
     return {
       inPlay: this.inPlay.profit,
       inPlayCashout: this.inPlay.cashout,
+      inPlayExpected: this.inPlay.expected,
       overall: this.overall.profit,
       overallCashout: this.overall.cashout,
       snowball: this.snowball.profit,
