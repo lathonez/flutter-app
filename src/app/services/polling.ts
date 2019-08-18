@@ -18,6 +18,7 @@ export class PollingService {
   private _url: string;
   private _profit: number;
   private _cashout: number;
+  private _expected: number;
   private _stale: boolean = false;
   private _trend: boolean = null;
 
@@ -38,6 +39,10 @@ export class PollingService {
 
   public get cashout(): string {
     return this.formatCcy(this._cashout) + (this.stale ? '!' : '');
+  }
+
+  public get expected(): string {
+    return this.formatCcy(this._expected) + (this.stale ? '!' : '');
   }
 
   public get stale(): boolean {
@@ -110,8 +115,9 @@ export class PollingService {
 
         this._profit = newSummary['Profit'];
         this._cashout = newSummary['CashoutValueExclLargeSpread'];
+        this._expected = newSummary['ExpectedProfit'];
 
-        this.profitUpdate.emit({profit: this.profit, cashout: this.cashout, trend: this.trend});
+        this.profitUpdate.emit({ profit: this.profit, cashout: this.cashout, expected: this.expected, trend: this.trend});
         return this._profit;
       })
       .catch(err => {
