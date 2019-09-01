@@ -77,7 +77,7 @@ export class NotificationService {
 
   private get profit(): string {
     const { overall, inPlay, snowball } = this.flutter.profit;
-    return `Overall: ${overall}\nSnowball: ${snowball}\nInPlay: ${inPlay}`;
+    return `Normal: ${overall}\nDogs: ${snowball}\nIP: ${inPlay}`;
   }
 
   private clear(): void {
