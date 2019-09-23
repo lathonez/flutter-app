@@ -21,6 +21,7 @@ export class PollingService {
   private _expected: number;
   private _stale: boolean = false;
   private _trend: boolean = null;
+  private _updated: string;
 
   private pollTimeoutHandle: number;
   private zone: NgZone;
@@ -51,6 +52,10 @@ export class PollingService {
 
   public get trend(): boolean {
     return this._trend;
+  }
+
+  public get updated(): string {
+    return this._updated;
   }
 
   private formatCcy(amount: number): string {
@@ -103,6 +108,7 @@ export class PollingService {
     return fetch(this._url.replace(/DATE/g, date))
       .then(response => this.responseHandler(response))
       .then(newSummary => {
+        this._updated = moment().format('HH:mm');
 
         if (this._profit === newSummary['Profit']) {
           console.log(`Profit static @ ${this._profit}`);
