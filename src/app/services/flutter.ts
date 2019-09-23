@@ -39,6 +39,7 @@ export class FlutterService {
       overallCashout: this.overall.cashout,
       snowball: this.snowball.profit,
       snowballCashout: this.snowball.cashout,
+      updated: this.overall.updated
     };
   }
 }
