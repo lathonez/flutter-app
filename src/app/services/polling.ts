@@ -34,16 +34,16 @@ export class PollingService {
     this.eventLoop();
   }
 
-  public get profit(): string {
-    return this.formatCcy(this._profit) + (this.stale ? '!' : '');
+  public get profit(): number {
+    return this._profit;
   }
 
-  public get cashout(): string {
-    return this.formatCcy(this._cashout) + (this.stale ? '!' : '');
+  public get cashout(): number {
+    return this._cashout;
   }
 
-  public get expected(): string {
-    return this.formatCcy(this._expected) + (this.stale ? '!' : '');
+  public get expected(): number {
+    return this._expected;
   }
 
   public get stale(): boolean {
@@ -56,13 +56,6 @@ export class PollingService {
 
   public get updated(): string {
     return this._updated;
-  }
-
-  private formatCcy(amount: number): string {
-    if (!amount) {
-      return '£--.--';
-    }
-    return `${amount < 0 ? '-' : ''}£${Math.abs(amount).toFixed(2)}`;
   }
 
   private eventLoop(): void {
