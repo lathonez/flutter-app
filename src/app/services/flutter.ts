@@ -30,16 +30,24 @@ export class FlutterService {
 
   }
 
+  private formatCcy(amount: number): string {
+    if (!amount) {
+      return '£--.--';
+    }
+    return `${amount < 0 ? '-' : ''}£${Math.abs(amount).toFixed(2)}`;
+  }
+
   public get profit() {
     return {
-      inPlay: this.inPlay.profit,
-      inPlayCashout: this.inPlay.cashout,
-      inPlayExpected: this.inPlay.expected,
-      overall: this.overall.profit,
-      overallCashout: this.overall.cashout,
-      snowball: this.snowball.profit,
-      snowballCashout: this.snowball.cashout,
-      updated: this.overall.updated
+      inPlay: this.formatCcy(this.inPlay.profit) + (this.inPlay.stale ? '!' : ''),
+      inPlayCashout: this.formatCcy(this.inPlay.cashout),
+      inPlayExpected: this.formatCcy(this.inPlay.expected),
+      overall: this.formatCcy(this.overall.profit) + (this.overall.stale ? '!' : ''),
+      overallCashout: this.formatCcy(this.overall.cashout),
+      snowball: this.formatCcy(this.snowball.profit) + (this.snowball.stale ? '!' : ''),
+      snowballCashout: this.formatCcy(this.snowball.cashout),
+      updated: this.overall.updated,
+      total: this.formatCcy(this.inPlay.profit + this.overall.profit + this.snowball.profit)
     };
   }
 }
